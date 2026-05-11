@@ -21,15 +21,17 @@ class BookingBLL {
 
     public function createNewBooking($data) {
     try {
-        // Tính toán tổng tiền dự kiến dựa trên số buổi
-        $unitPrice = 400000; // Đơn giá cố định hoặc lấy từ $data
-        $totalAmount = $data['total_sessions'] * $unitPrice;
+        $totalSessions = (int)$data['total_sessions'];
+        $totalExpected = (float)$data['price_per_session']; // Frontend đang gửi tổng vào đây
+        
+        // Tính đơn giá 1 buổi (800k / 2 = 400k)
+        $unitPrice = $totalSessions > 0 ? $totalExpected / $totalSessions : $totalExpected;
 
         return $this->bookingDAL->callDatSanProcedure(
             $data['user_id'], $data['customer_name'], $data['customer_phone'],
             $data['court_id'], $data['time_slot'], 
-            $totalAmount,       // Tham số mới: Tổng tiền (800k)
-            $unitPrice,         // Tham số mới: Đơn giá (400k)
+            $totalExpected, // p_total_amount
+            $unitPrice,     // p_unit_price
             $data['deposit'], $data['start_date'], $data['end_date']
         );
     } catch (Exception $e) {
