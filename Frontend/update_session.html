@@ -340,13 +340,16 @@
         }
 
         // 3. MỞ GIAO DIỆN NHẬP CHI TIẾT CA ĐÁ
-        function openSessionDetail(bookingCourtId, bookingId, courtName, timeSlot) {
+        function openSessionDetail(bookingCourtId, bookingId, courtName, timeSlot, playDate) {
             document.getElementById('step-4-session-detail').style.display = 'block';
             document.getElementById('displaySessionId').innerText = "#" + bookingId + ' (' + courtName + ' - ' + timeSlot + ')';
             document.getElementById('formBookingCourtId').value = bookingCourtId;
 
-            // Mặc định ngày hiện tại khi mở form
-            document.getElementById('playDate').value = new Date().toISOString().slice(0, 10);
+            // Sử dụng ngày ca đá thực tế được truyền vào, không phải ngày hôm nay
+            document.getElementById('playDate').value = playDate || new Date().toISOString().slice(0, 10);
+
+            // XÓA SẠCH CÁC MẬT HÀNG CŨ TỪ CA ĐÁ TRƯỚC ĐÓ
+            document.getElementById('usedItemsTableBody').innerHTML = '';
 
             document.getElementById('step-4-session-detail').scrollIntoView({ behavior: 'smooth' });
             calculateTotal(); // Tính toán lần đầu
