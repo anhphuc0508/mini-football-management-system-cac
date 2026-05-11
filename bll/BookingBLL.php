@@ -22,18 +22,24 @@ class BookingBLL {
     public function createNewBooking($data) {
     try {
         $totalSessions = (int)$data['total_sessions'];
-        $totalExpected = (float)$data['price_per_session']; // Frontend đang gửi tổng vào đây
-        
-        // Tính đơn giá 1 buổi (800k / 2 = 400k)
-        $unitPrice = $totalSessions > 0 ? $totalExpected / $totalSessions : $totalExpected;
+        $totalExpected = (float)$data['price_per_session']; 
+        $unitPrice = $totalSessions > 0 ? $totalExpected / $totalSessions : 400000;
 
-        return $this->bookingDAL->callDatSanProcedure(
+        $newBookingId = $this->bookingDAL->callDatSanProcedure(
             $data['user_id'], $data['customer_name'], $data['customer_phone'],
             $data['court_id'], $data['time_slot'], 
-            $totalExpected, // p_total_amount
-            $unitPrice,     // p_unit_price
-            $data['deposit'], $data['start_date'], $data['end_date']
+            $totalExpected, $unitPrice, $data['deposit'], 
+            $data['start_date'], $data['end_date']
         );
+
+        if ($newBookingId) {
+            return [
+                "status" => "success", 
+                "message" => "Đặt sân thành công!", 
+                "booking_id" => $newBookingId // Gửi ID này về cho Frontend
+            ];
+        }
+        throw new Exception("Không lấy được mã đặt sân.");
     } catch (Exception $e) {
         return ["status" => "error", "message" => $e->getMessage()];
     }

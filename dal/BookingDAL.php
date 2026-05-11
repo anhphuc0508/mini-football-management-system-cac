@@ -6,25 +6,19 @@ class BookingDAL {
 
     public function callDatSanProcedure($userId, $name, $phone, $courtId, $timeSlot, $totalAmount, $unitPrice, $deposit, $startDate, $endDate) {
     try {
-        // Ép kiểu cụ thể cho từng tham số để Postgres không bị "ngáo"
-        $query = "CALL DatSan(
-            CAST(:u AS INT), 
-            CAST(:n AS TEXT), 
-            CAST(:p AS TEXT), 
-            CAST(:c AS INT), 
-            CAST(:ts AS TEXT), 
-            CAST(:total AS NUMERIC), 
-            CAST(:unit AS NUMERIC), 
-            CAST(:dep AS NUMERIC), 
-            CAST(:start AS DATE), 
-            CAST(:end AS DATE)
-        )";
+        // Có 11 dấu chấm hỏi (10 IN + 1 OUT)
+        $query = "CALL DatSan(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->conn->prepare($query);
-        return $stmt->execute([
-            'u' => $userId, 'n' => $name, 'p' => $phone, 'c' => $courtId, 'ts' => $timeSlot,
-            'total' => $totalAmount, 'unit' => $unitPrice, 'dep' => $deposit, 
-            'start' => $startDate, 'end' => $endDate
+        
+        $stmt->execute([
+            $userId, $name, $phone, $courtId, $timeSlot, 
+            $totalAmount, $unitPrice, $deposit, $startDate, $endDate,
+            null // Vị trí của biến OUT
         ]);
+
+        // Lấy giá trị ID trả về từ Procedure
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result['p_booking_id'] : false;
     } catch (PDOException $e) {
         throw new Exception($e->getMessage());
     }
