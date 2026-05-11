@@ -6,8 +6,19 @@ class BookingDAL {
 
     public function callDatSanProcedure($userId, $name, $phone, $courtId, $timeSlot, $totalAmount, $unitPrice, $deposit, $startDate, $endDate) {
     try {
-        // Phải đủ 10 tham số :u, :n, :p, :c, :ts, :total, :unit, :dep, :start, :end
-        $query = "CALL DatSan(:u, :n, :p, :c, :ts, :total, :unit, :dep, :start, :end)";
+        // Ép kiểu cụ thể cho từng tham số để Postgres không bị "ngáo"
+        $query = "CALL DatSan(
+            CAST(:u AS INT), 
+            CAST(:n AS TEXT), 
+            CAST(:p AS TEXT), 
+            CAST(:c AS INT), 
+            CAST(:ts AS TEXT), 
+            CAST(:total AS NUMERIC), 
+            CAST(:unit AS NUMERIC), 
+            CAST(:dep AS NUMERIC), 
+            CAST(:start AS DATE), 
+            CAST(:end AS DATE)
+        )";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([
             'u' => $userId, 'n' => $name, 'p' => $phone, 'c' => $courtId, 'ts' => $timeSlot,
