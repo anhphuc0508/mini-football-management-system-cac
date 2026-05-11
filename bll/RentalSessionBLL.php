@@ -16,8 +16,7 @@ class RentalSessionBLL {
             $this->db->beginTransaction();
 
             // 1. Kiểm tra session hiện có
-$existingSession = $this->rentalSessionDAL->getSessionByCourtAndDate($bookingCourtId, $playDate);            $sessionId = null;
-
+$existingSession = $this->rentalSessionDAL->getSessionByCourtAndDate($bookingCourtId, $playDate);
             if ($existingSession) {
                 $sessionId = $existingSession['id'];
                 // Cập nhật thông tin ca đá hiện tại
