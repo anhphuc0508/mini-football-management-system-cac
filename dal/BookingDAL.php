@@ -36,18 +36,20 @@ class BookingDAL {
 
     // Lấy danh sách booking và ca đá chưa hoàn thành theo khách hàng
     public function getBookingsByCustomer($customerId) {
-        $query = "SELECT b.id AS booking_id, b.start_date, b.end_date, b.total_expected_amount, b.deposit_amount, b.status,
-                         bc.id AS booking_court_id, bc.time_slot, bc.price_per_session,
-                         c.id AS court_id, c.name AS court_name
-                  FROM bookings b
-                  JOIN booking_courts bc ON bc.booking_id = b.id
-                  JOIN courts c ON c.id = bc.court_id
-                  WHERE b.customer_id = :customer_id AND b.status != 'completed'
-                  ORDER BY b.start_date DESC";
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute(['customer_id' => $customerId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    // Sửa lại Query để lấy ra từng Session cụ thể thay vì chỉ lấy Booking tổng
+    $query = "SELECT b.id AS booking_id, rs.play_date, rs.payment_status,
+                     bc.id AS booking_court_id, bc.time_slot,
+                     c.name AS court_name, rs.id AS session_id
+              FROM bookings b
+              JOIN booking_courts bc ON bc.booking_id = b.id
+              JOIN rental_sessions rs ON rs.booking_court_id = bc.id -- QUAN TRỌNG: Join thêm sessions
+              JOIN courts c ON c.id = bc.court_id
+              WHERE b.customer_id = :customer_id AND b.status != 'paid'
+              ORDER BY rs.play_date ASC";
+    $stmt = $this->conn->prepare($query);
+    $stmt->execute(['customer_id' => $customerId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
     // Tìm các Booking chưa thanh toán của 1 khách hàng (Cho Checkout)
     public function getUnpaidBookingsByCustomer($customerId) {
