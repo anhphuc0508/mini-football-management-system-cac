@@ -20,25 +20,22 @@ class BookingBLL {
     }
 
     public function createNewBooking($data) {
-        try {
-            // Truyền đầy đủ các trường dữ liệu từ Payload frontend gửi lên
-            $this->bookingDAL->callDatSanProcedure(
-                $data['user_id'],
-                $data['customer_name'],
-                $data['customer_phone'],
-                $data['court_id'],
-                $data['time_slot'],
-                $data['price_per_session'],
-                $data['deposit'],
-                $data['start_date'], // Trường mới
-                $data['end_date']    // Trường mới
-            );
+    try {
+        // Tính toán tổng tiền dự kiến dựa trên số buổi
+        $unitPrice = 400000; // Đơn giá cố định hoặc lấy từ $data
+        $totalAmount = $data['total_sessions'] * $unitPrice;
 
-            return ["status" => "success", "message" => "Đặt sân thành công!"];
-        } catch (Exception $e) {
-            return ["status" => "error", "message" => "Lỗi đặt sân: " . $e->getMessage()];
-        }
+        return $this->bookingDAL->callDatSanProcedure(
+            $data['user_id'], $data['customer_name'], $data['customer_phone'],
+            $data['court_id'], $data['time_slot'], 
+            $totalAmount,       // Tham số mới: Tổng tiền (800k)
+            $unitPrice,         // Tham số mới: Đơn giá (400k)
+            $data['deposit'], $data['start_date'], $data['end_date']
+        );
+    } catch (Exception $e) {
+        return ["status" => "error", "message" => $e->getMessage()];
     }
+}
     public function getCustomerBookings($customerId) {
         return $this->bookingDAL->getBookingsByCustomer($customerId);
     }

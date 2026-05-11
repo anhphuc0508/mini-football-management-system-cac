@@ -4,27 +4,14 @@ class BookingDAL {
 
     public function __construct($db) { $this->conn = $db; }
 
-    public function callDatSanProcedure($userId, $name, $phone, $courtId, $timeSlot, $amount, $deposit, $startDate, $endDate) {
-        try {
-            // Cập nhật số lượng tham số truyền vào Procedure
-            $query = "CALL DatSan(:user_id, :name, :phone, :court_id, :timeslot, :amount, :deposit, :start_date, :end_date)";
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute([
-                'user_id'    => $userId,
-                'name'       => $name,
-                'phone'      => $phone,
-                'court_id'   => $courtId,
-                'timeslot'   => $timeSlot,
-                'amount'     => $amount,
-                'deposit'    => $deposit,
-                'start_date' => $startDate,
-                'end_date'   => $endDate
-            ]);
-            return true;
-        } catch (PDOException $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
+    public function callDatSanProcedure($userId, $name, $phone, $courtId, $timeSlot, $totalAmount, $unitPrice, $deposit, $startDate, $endDate) {
+    $query = "CALL DatSan(:u_id, :name, :phone, :c_id, :ts, :total, :unit, :dep, :start, :end)";
+    $stmt = $this->conn->prepare($query);
+    return $stmt->execute([
+        'u_id' => $userId, 'name' => $name, 'phone' => $phone, 'c_id' => $courtId, 'ts' => $timeSlot,
+        'total' => $totalAmount, 'unit' => $unitPrice, 'dep' => $deposit, 'start' => $startDate, 'end' => $endDate
+    ]);
+}
 
     public function addBookingCourt($bookingId, $courtId, $timeSlot, $pricePerSession) {
         $query = "INSERT INTO booking_courts (booking_id, court_id, time_slot, price_per_session) 
