@@ -5,12 +5,18 @@ class BookingDAL {
     public function __construct($db) { $this->conn = $db; }
 
     public function callDatSanProcedure($userId, $name, $phone, $courtId, $timeSlot, $totalAmount, $unitPrice, $deposit, $startDate, $endDate) {
-    $query = "CALL DatSan(:u_id, :name, :phone, :c_id, :ts, :total, :unit, :dep, :start, :end)";
-    $stmt = $this->conn->prepare($query);
-    return $stmt->execute([
-        'u_id' => $userId, 'name' => $name, 'phone' => $phone, 'c_id' => $courtId, 'ts' => $timeSlot,
-        'total' => $totalAmount, 'unit' => $unitPrice, 'dep' => $deposit, 'start' => $startDate, 'end' => $endDate
-    ]);
+    try {
+        // Phải đủ 10 tham số :u, :n, :p, :c, :ts, :total, :unit, :dep, :start, :end
+        $query = "CALL DatSan(:u, :n, :p, :c, :ts, :total, :unit, :dep, :start, :end)";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([
+            'u' => $userId, 'n' => $name, 'p' => $phone, 'c' => $courtId, 'ts' => $timeSlot,
+            'total' => $totalAmount, 'unit' => $unitPrice, 'dep' => $deposit, 
+            'start' => $startDate, 'end' => $endDate
+        ]);
+    } catch (PDOException $e) {
+        throw new Exception($e->getMessage());
+    }
 }
 
     public function addBookingCourt($bookingId, $courtId, $timeSlot, $pricePerSession) {
